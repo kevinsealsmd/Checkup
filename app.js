@@ -95,9 +95,9 @@
   // ============================================
 
   function render() {
-    // Screen visibility
-    els.screenMenu.hidden = state.screen !== 'menu';
-    els.screenScan.hidden = state.screen !== 'scan';
+    // Screen visibility — toggle active class
+    els.screenMenu.classList.toggle('screen--active', state.screen === 'menu');
+    els.screenScan.classList.toggle('screen--active', state.screen === 'scan');
     els.btnBack.hidden = state.screen === 'menu';
 
     if (state.screen === 'menu') return;
