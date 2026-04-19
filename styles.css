@@ -110,9 +110,18 @@ body {
 /* --- Screens --- */
 .screen {
   flex: 1;
-  display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* display is toggled between none/flex via JS — don't set display here
+     because it would override the hidden attribute. */
+}
+
+.screen[hidden] {
+  display: none;
+}
+
+.screen:not([hidden]) {
+  display: flex;
 }
 
 /* --- Menu screen --- */
