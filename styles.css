@@ -281,10 +281,8 @@ body {
 }
 
 /* --- Scan screen layout --- */
-.scan {
-  display: flex;
-  flex-direction: column;
-}
+/* .scan layout is handled by .screen:not([hidden]) which sets display:flex.
+   flex-direction:column is inherited from .screen. */
 
 .scan-top {
   flex: 0 0 35%;
