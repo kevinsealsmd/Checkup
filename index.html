@@ -29,34 +29,27 @@
        ========================================== -->
   <section class="screen menu" id="screen-menu">
 
-    <!-- Dr. Thump mascot (menu) -->
-    <div class="menu__mascot" id="mascot-menu">
-      <video id="thump-menu-video" muted autoplay loop playsinline>
-        <source src="/assets/video/thump-idle.webm" type="video/webm">
-        <source src="/assets/video/thump-idle.mp4" type="video/mp4">
-      </video>
-      <div class="svg-fallback" id="thump-menu-fallback" hidden>
-        <!-- Inline SVG: simplified Dr. Thump -->
-        <svg viewBox="0 0 96 96" width="96" height="96">
-          <!-- Heart body -->
-          <path class="thump-heart" d="M48 82 C48 82 16 60 16 38 C16 24 26 16 36 16 C42 16 46 20 48 24 C50 20 54 16 60 16 C70 16 80 24 80 38 C80 60 48 82 48 82Z" fill="#F4C0D1"/>
-          <!-- Scrub top -->
-          <rect x="32" y="48" width="32" height="22" rx="4" fill="#7FC9BF"/>
-          <!-- V-neck -->
-          <path d="M44 48 L48 56 L52 48" fill="#F4C0D1"/>
-          <!-- Eyes -->
-          <circle cx="40" cy="36" r="2.5" fill="#4B1528"/>
-          <circle cx="56" cy="36" r="2.5" fill="#4B1528"/>
-          <!-- Smile -->
-          <path d="M44 42 Q48 46 52 42" stroke="#4B1528" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <!-- Cheek blush -->
-          <ellipse cx="36" cy="40" rx="4" ry="2.5" fill="#F4C0D1" opacity="0.5"/>
-          <ellipse cx="60" cy="40" rx="4" ry="2.5" fill="#F4C0D1" opacity="0.5"/>
-          <!-- Stethoscope -->
-          <path d="M38 50 Q38 58 48 62 Q58 58 58 50" stroke="#FAC775" stroke-width="2" fill="none"/>
-          <circle cx="48" cy="64" r="3" fill="#C0C0C0"/>
-        </svg>
-      </div>
+    <!-- Dr. Thump mascot -->
+    <div class="menu__mascot">
+      <svg viewBox="0 0 96 96" width="96" height="96">
+        <!-- Heart body -->
+        <path class="thump-heart" d="M48 82 C48 82 16 60 16 38 C16 24 26 16 36 16 C42 16 46 20 48 24 C50 20 54 16 60 16 C70 16 80 24 80 38 C80 60 48 82 48 82Z" fill="#F4C0D1"/>
+        <!-- Scrub top -->
+        <rect x="32" y="48" width="32" height="22" rx="4" fill="#7FC9BF"/>
+        <!-- V-neck -->
+        <path d="M44 48 L48 56 L52 48" fill="#F4C0D1"/>
+        <!-- Eyes -->
+        <circle cx="40" cy="36" r="2.5" fill="#4B1528"/>
+        <circle cx="56" cy="36" r="2.5" fill="#4B1528"/>
+        <!-- Smile -->
+        <path d="M44 42 Q48 46 52 42" stroke="#4B1528" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Cheek blush -->
+        <ellipse cx="36" cy="40" rx="4" ry="2.5" fill="#F4C0D1" opacity="0.5"/>
+        <ellipse cx="60" cy="40" rx="4" ry="2.5" fill="#F4C0D1" opacity="0.5"/>
+        <!-- Stethoscope -->
+        <path d="M38 50 Q38 58 48 62 Q58 58 58 50" stroke="#FAC775" stroke-width="2" fill="none"/>
+        <circle cx="48" cy="64" r="3" fill="#C0C0C0"/>
+      </svg>
     </div>
 
     <h2 class="menu__title">Dr. Thump's Kit</h2>
@@ -115,42 +108,24 @@
        ========================================== -->
   <section class="screen scan" id="screen-scan" hidden>
 
-    <!-- Top panel: Dr. Thump + speech bubble + BPM -->
+    <!-- Top panel: Doppler waveform monitor -->
     <div class="scan-top">
-      <div class="thump-row">
-        <div class="thump-video-wrap" id="thump-scan-wrap">
-          <!-- Three separate video elements for instant state swaps -->
-          <video id="thump-scan-idle" muted autoplay loop playsinline>
-            <source src="/assets/video/thump-idle.webm" type="video/webm">
-            <source src="/assets/video/thump-idle.mp4" type="video/mp4">
-          </video>
-          <video id="thump-scan-talking" muted autoplay loop playsinline hidden>
-            <source src="/assets/video/thump-talking.webm" type="video/webm">
-            <source src="/assets/video/thump-talking.mp4" type="video/mp4">
-          </video>
-          <video id="thump-scan-cheering" muted autoplay loop playsinline hidden>
-            <source src="/assets/video/thump-cheering.webm" type="video/webm">
-            <source src="/assets/video/thump-cheering.mp4" type="video/mp4">
-          </video>
-          <div class="svg-fallback" id="thump-scan-fallback" hidden>
-            <svg viewBox="0 0 52 52" width="52" height="52">
-              <path class="thump-heart" d="M26 45 C26 45 8 33 8 20 C8 13 13 8 19 8 C22 8 25 11 26 13 C27 11 30 8 33 8 C39 8 44 13 44 20 C44 33 26 45 26 45Z" fill="#F4C0D1"/>
-              <rect x="17" y="26" width="18" height="12" rx="3" fill="#7FC9BF"/>
-              <path d="M24 26 L26 30 L28 26" fill="#F4C0D1"/>
-              <circle cx="22" cy="19" r="1.5" fill="#4B1528"/>
-              <circle cx="30" cy="19" r="1.5" fill="#4B1528"/>
-              <path d="M24 23 Q26 25 28 23" stroke="#4B1528" stroke-width="1" fill="none" stroke-linecap="round"/>
-            </svg>
-          </div>
-        </div>
-        <div class="speech-bubble" id="speech-bubble">
-          Point the camera at a wrist and tap Scan!
+      <div class="monitor" id="monitor">
+        <canvas id="waveform-canvas"></canvas>
+        <!-- Placeholder shown before scanning -->
+        <div class="monitor__placeholder" id="monitor-placeholder">
+          <svg class="monitor__heart-icon" viewBox="0 0 40 40" fill="none" width="32" height="32">
+            <path d="M20 35 C20 35 6 25 6 16 C6 10 10 6 15 6 C18 6 20 8 20 8 C20 8 22 6 25 6 C30 6 34 10 34 16 C34 25 20 35 20 35Z" fill="#F4C0D1" stroke="#D4537E" stroke-width="1.5"/>
+          </svg>
+          <span class="monitor__placeholder-text">Point at a wrist and tap Scan!</span>
         </div>
       </div>
-
-      <div class="bpm-display">
-        <span class="bpm-number" id="bpm-number">--</span>
-        <span class="bpm-label">bpm</span>
+      <div class="monitor-readout">
+        <div class="bpm-display">
+          <span class="bpm-number" id="bpm-number">--</span>
+          <span class="bpm-label">bpm</span>
+        </div>
+        <div class="cheer-phrase" id="cheer-phrase"></div>
       </div>
     </div>
 

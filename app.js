@@ -27,22 +27,19 @@
 
     // Menu screen
     screenMenu: $('screen-menu'),
-    thumpMenuVideo: $('thump-menu-video'),
-    thumpMenuFallback: $('thump-menu-fallback'),
     btnPulse: $('btn-pulse'),
 
     // Scan screen
     screenScan: $('screen-scan'),
 
-    // Thump (scan)
-    thumpScanIdle: $('thump-scan-idle'),
-    thumpScanTalking: $('thump-scan-talking'),
-    thumpScanCheering: $('thump-scan-cheering'),
-    thumpScanFallback: $('thump-scan-fallback'),
+    // Doppler monitor
+    monitor: $('monitor'),
+    waveformCanvas: $('waveform-canvas'),
+    monitorPlaceholder: $('monitor-placeholder'),
 
-    // Speech & BPM
-    speechBubble: $('speech-bubble'),
+    // Readout
     bpmNumber: $('bpm-number'),
+    cheerPhrase: $('cheer-phrase'),
 
     // Camera
     cameraFeed: $('camera-feed'),
@@ -93,12 +90,6 @@
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
-  function getSpeechText() {
-    if (state.scanPhase === 'ready') return 'Point the camera at a wrist and tap Scan!';
-    if (state.scanPhase === 'searching') return 'Listening carefully...';
-    return state.cheerPhrase;
-  }
-
   // ============================================
   // 4. RENDER
   // ============================================
@@ -109,19 +100,18 @@
     els.screenScan.hidden = state.screen !== 'scan';
     els.btnBack.hidden = state.screen === 'menu';
 
-    if (state.screen === 'menu') {
-      // Ensure menu Thump is playing
-      safePlay(els.thumpMenuVideo);
-      return;
-    }
+    if (state.screen === 'menu') return;
 
     // --- Scan screen ---
 
-    // Speech bubble
-    els.speechBubble.textContent = getSpeechText();
-
-    // BPM
+    // BPM readout
     els.bpmNumber.textContent = state.bpm != null ? state.bpm : '--';
+
+    // Cheer phrase
+    els.cheerPhrase.textContent = state.cheerPhrase;
+
+    // Monitor placeholder (visible only before first scan)
+    els.monitorPlaceholder.hidden = state.scanPhase !== 'ready';
 
     // Scan button
     els.btnScan.textContent = state.scanPhase === 'found' ? 'Scan again' : 'Scan';
@@ -141,48 +131,216 @@
       els.vesselWrap.classList.remove('vessel-wrap--active');
       els.vesselWrap.classList.add('vessel-wrap--idle');
     }
-
-    // Thump video state
-    updateThumpVideo();
   }
 
   // ============================================
-  // 5. THUMP VIDEO MANAGEMENT
+  // 5. DOPPLER WAVEFORM (Canvas)
   // ============================================
+  //
+  // Draws a scrolling waveform that mimics a real doppler spectral display:
+  // a dark background with a coral-pink waveform trace scrolling left.
+  // Each heartbeat produces a sharp systolic peak followed by a smaller
+  // diastolic bump, similar to an arterial doppler waveform.
 
-  let thumpState = 'idle'; // 'idle' | 'talking' | 'cheering'
-  let useFallbackThump = false;
+  let waveformAnimId = null;
+  let waveformData = [];      // ring buffer of y-values (0–1) scrolling left
+  let waveformPhase = 0;      // current phase within a beat cycle (0–1)
+  let waveformLastTime = 0;
 
-  function setThumpState(newState) {
-    thumpState = newState;
-    updateThumpVideo();
+  function initWaveformCanvas() {
+    var canvas = els.waveformCanvas;
+    var rect = els.monitor.getBoundingClientRect();
+    // Use devicePixelRatio for sharp rendering on retina displays
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    // Store logical dimensions for drawing
+    canvas._logicalW = rect.width;
+    canvas._logicalH = rect.height;
   }
 
-  function updateThumpVideo() {
-    if (useFallbackThump) {
-      els.thumpScanIdle.hidden = true;
-      els.thumpScanTalking.hidden = true;
-      els.thumpScanCheering.hidden = true;
-      els.thumpScanFallback.hidden = false;
-      return;
+  // Generate a doppler-style waveform value for a given phase (0–1 within one beat)
+  function dopplerWaveValue(phase) {
+    // Systolic peak: sharp upstroke at ~0.05–0.20 of the cycle
+    // Diastolic notch + bump: small bump at ~0.30–0.45
+    // Rest: near baseline
+    if (phase < 0.05) {
+      // Upstroke
+      var t = phase / 0.05;
+      return 0.1 + t * 0.8;
+    } else if (phase < 0.15) {
+      // Systolic peak and early downstroke
+      var t = (phase - 0.05) / 0.10;
+      return 0.9 - t * 0.5;
+    } else if (phase < 0.25) {
+      // Continuing downstroke
+      var t = (phase - 0.15) / 0.10;
+      return 0.4 - t * 0.2;
+    } else if (phase < 0.30) {
+      // Dicrotic notch (small dip)
+      var t = (phase - 0.25) / 0.05;
+      return 0.2 - t * 0.08;
+    } else if (phase < 0.40) {
+      // Diastolic bump
+      var t = (phase - 0.30) / 0.10;
+      var bump = Math.sin(t * Math.PI) * 0.2;
+      return 0.12 + bump;
+    } else {
+      // Diastolic runoff — slowly decay to baseline
+      var t = (phase - 0.40) / 0.60;
+      return 0.12 * (1 - t * 0.7);
+    }
+  }
+
+  function startWaveform(bpm) {
+    initWaveformCanvas();
+    var canvas = els.waveformCanvas;
+    var w = canvas._logicalW;
+    var h = canvas._logicalH;
+    var ctx = canvas.getContext('2d');
+
+    // Number of columns we render (one per ~2px for performance)
+    var cols = Math.ceil(w / 2);
+    waveformData = new Array(cols).fill(0);
+    waveformPhase = 0;
+    waveformLastTime = performance.now();
+
+    var beatDuration = 60000 / bpm; // ms per beat
+    // How much phase advances per ms
+    var phasePerMs = 1 / beatDuration;
+    // How many columns scroll per ms (scroll full width in ~3 seconds)
+    var scrollSpeed = cols / 3000;
+
+    var accumScroll = 0;
+
+    function drawFrame(now) {
+      var dt = now - waveformLastTime;
+      waveformLastTime = now;
+      // Cap dt to avoid huge jumps if tab was backgrounded
+      if (dt > 100) dt = 16;
+
+      // Advance phase
+      waveformPhase += phasePerMs * dt;
+      if (waveformPhase >= 1) waveformPhase -= 1;
+
+      // Scroll: accumulate fractional columns
+      accumScroll += scrollSpeed * dt;
+      var colsToAdd = Math.floor(accumScroll);
+      accumScroll -= colsToAdd;
+
+      // Push new data points
+      for (var i = 0; i < colsToAdd; i++) {
+        // Advance phase for each sub-column too
+        var subPhase = waveformPhase + (i / colsToAdd) * phasePerMs * dt;
+        if (subPhase >= 1) subPhase -= 1;
+        var val = dopplerWaveValue(subPhase);
+        // Add slight noise for organic feel
+        val += (Math.random() - 0.5) * 0.03;
+        waveformData.push(Math.max(0, Math.min(1, val)));
+      }
+      // Trim from the front to keep fixed length
+      while (waveformData.length > cols) {
+        waveformData.shift();
+      }
+
+      // Draw
+      ctx.clearRect(0, 0, w, h);
+
+      // Dark background with subtle grid lines
+      ctx.fillStyle = '#1a1a18';
+      ctx.fillRect(0, 0, w, h);
+
+      // Horizontal grid lines
+      ctx.strokeStyle = 'rgba(127, 201, 191, 0.08)';
+      ctx.lineWidth = 0.5;
+      for (var g = 1; g < 4; g++) {
+        var gy = h * g / 4;
+        ctx.beginPath();
+        ctx.moveTo(0, gy);
+        ctx.lineTo(w, gy);
+        ctx.stroke();
+      }
+
+      // Waveform trace
+      var margin = 8;
+      var drawH = h - margin * 2;
+      ctx.beginPath();
+      ctx.strokeStyle = '#D4537E';
+      ctx.lineWidth = 2;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+
+      for (var c = 0; c < waveformData.length; c++) {
+        var x = (c / (cols - 1)) * w;
+        // Invert y: higher value = higher on screen
+        var y = margin + drawH * (1 - waveformData[c]);
+        if (c === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Glow effect: draw the same path wider and translucent
+      ctx.strokeStyle = 'rgba(212, 83, 126, 0.25)';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      for (var c = 0; c < waveformData.length; c++) {
+        var x = (c / (cols - 1)) * w;
+        var y = margin + drawH * (1 - waveformData[c]);
+        if (c === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      waveformAnimId = requestAnimationFrame(drawFrame);
     }
 
-    els.thumpScanFallback.hidden = true;
-    els.thumpScanIdle.hidden = thumpState !== 'idle';
-    els.thumpScanTalking.hidden = thumpState !== 'talking';
-    els.thumpScanCheering.hidden = thumpState !== 'cheering';
-
-    // Play the visible one
-    if (thumpState === 'idle') safePlay(els.thumpScanIdle);
-    else if (thumpState === 'talking') safePlay(els.thumpScanTalking);
-    else if (thumpState === 'cheering') safePlay(els.thumpScanCheering);
+    waveformAnimId = requestAnimationFrame(drawFrame);
   }
 
-  function safePlay(video) {
-    if (!video) return;
-    // Safari: play() returns a promise that can reject if autoplay is blocked
-    var p = video.play();
-    if (p && p.catch) p.catch(function () {});
+  function stopWaveform() {
+    if (waveformAnimId) {
+      cancelAnimationFrame(waveformAnimId);
+      waveformAnimId = null;
+    }
+  }
+
+  // Draw a flat baseline on the canvas (for searching state)
+  function drawFlatline() {
+    initWaveformCanvas();
+    var canvas = els.waveformCanvas;
+    var w = canvas._logicalW;
+    var h = canvas._logicalH;
+    var ctx = canvas.getContext('2d');
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#1a1a18';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(127, 201, 191, 0.08)';
+    ctx.lineWidth = 0.5;
+    for (var g = 1; g < 4; g++) {
+      var gy = h * g / 4;
+      ctx.beginPath();
+      ctx.moveTo(0, gy);
+      ctx.lineTo(w, gy);
+      ctx.stroke();
+    }
+
+    // Flat baseline with gentle noise (looks like a live but quiet signal)
+    var margin = 8;
+    var baseY = h - margin - 4;
+    ctx.beginPath();
+    ctx.strokeStyle = '#D4537E';
+    ctx.lineWidth = 1.5;
+    for (var x = 0; x < w; x += 2) {
+      var y = baseY + (Math.random() - 0.5) * 2;
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
   }
 
   // ============================================
@@ -311,7 +469,6 @@
   // ============================================
 
   let searchTimeout = null;
-  let cheerTimeout = null;
 
   function startScan() {
     // Resume audio context on user gesture (Safari requirement)
@@ -322,8 +479,11 @@
 
     state.scanPhase = 'searching';
     state.bpm = null;
-    setThumpState('talking');
+    state.cheerPhrase = '';
     render();
+
+    // Show flatline on monitor while searching
+    drawFlatline();
 
     searchTimeout = setTimeout(onFound, 2500);
   }
@@ -332,14 +492,10 @@
     state.bpm = generateBpm();
     state.cheerPhrase = pickCheerPhrase(state.bpm);
     state.scanPhase = 'found';
-
-    // Thump: cheering for ~1.5s, then talking
-    setThumpState('cheering');
-    cheerTimeout = setTimeout(function () {
-      setThumpState('talking');
-    }, 1500);
-
     render();
+
+    // Start scrolling doppler waveform on the monitor
+    startWaveform(state.bpm);
 
     // Sparkle burst (one-shot animation)
     triggerSparkleBurst();
@@ -350,14 +506,12 @@
 
   function resetScan() {
     stopDopplerLoop();
+    stopWaveform();
     clearTimeout(searchTimeout);
-    clearTimeout(cheerTimeout);
     searchTimeout = null;
-    cheerTimeout = null;
     state.scanPhase = 'ready';
     state.bpm = null;
     state.cheerPhrase = '';
-    setThumpState('idle');
     render();
   }
 
@@ -383,117 +537,39 @@
     stopCamera();
     state.screen = 'menu';
     render();
-
-    // Pause scan videos
-    els.thumpScanIdle.pause();
-    els.thumpScanTalking.pause();
-    els.thumpScanCheering.pause();
   }
 
   function showScan() {
     state.screen = 'scan';
     state.scanPhase = 'ready';
     state.bpm = null;
-    setThumpState('idle');
+    state.cheerPhrase = '';
     render();
-
-    // Pause menu Thump
-    els.thumpMenuVideo.pause();
   }
 
   // ============================================
-  // 10. VIDEO PRELOADING & FALLBACKS
-  // ============================================
-
-  function preloadVideos() {
-    var videos = [
-      els.thumpMenuVideo,
-      els.thumpScanIdle,
-      els.thumpScanTalking,
-      els.thumpScanCheering,
-    ];
-
-    videos.forEach(function (video) {
-      if (video) video.load();
-    });
-  }
-
-  function setupVideoFallbacks() {
-    // Menu Thump fallback
-    setupFallbackForVideo(els.thumpMenuVideo, els.thumpMenuFallback);
-
-    // Scan Thump fallback — if any of the 3 scan videos fail, use fallback for all
-    var scanVideos = [els.thumpScanIdle, els.thumpScanTalking, els.thumpScanCheering];
-    var scanFailCount = 0;
-
-    scanVideos.forEach(function (video) {
-      var sources = video.querySelectorAll('source');
-      var sourceFailCount = 0;
-      sources.forEach(function (source) {
-        source.addEventListener('error', function () {
-          sourceFailCount++;
-          if (sourceFailCount >= sources.length) {
-            scanFailCount++;
-            // If all 3 videos fail, use SVG fallback
-            if (scanFailCount >= scanVideos.length) {
-              useFallbackThump = true;
-              updateThumpVideo();
-            }
-          }
-        });
-      });
-    });
-  }
-
-  function setupFallbackForVideo(video, fallback) {
-    if (!video || !fallback) return;
-    var sources = video.querySelectorAll('source');
-    var failCount = 0;
-    sources.forEach(function (source) {
-      source.addEventListener('error', function () {
-        failCount++;
-        if (failCount >= sources.length) {
-          video.hidden = true;
-          fallback.hidden = false;
-        }
-      });
-    });
-  }
-
-  // ============================================
-  // 11. VISIBILITY CHANGE HANDLER
+  // 10. VISIBILITY CHANGE HANDLER
   // ============================================
 
   function handleVisibilityChange() {
     if (document.hidden) {
-      // Pause all videos to save battery
-      els.thumpMenuVideo.pause();
-      els.thumpScanIdle.pause();
-      els.thumpScanTalking.pause();
-      els.thumpScanCheering.pause();
-
-      // Stop audio
+      // Stop waveform animation and audio to save battery
+      stopWaveform();
       stopDopplerLoop();
     } else {
       // Resume based on current state
-      render();
-
-      // Restart doppler if we were in found state
       if (state.screen === 'scan' && state.scanPhase === 'found' && state.bpm) {
+        startWaveform(state.bpm);
         startDopplerLoop(state.bpm);
       }
     }
   }
 
   // ============================================
-  // 12. EVENT LISTENERS & INIT
+  // 11. EVENT LISTENERS & INIT
   // ============================================
 
   function init() {
-    // Preload videos
-    preloadVideos();
-    setupVideoFallbacks();
-
     // Navigation
     els.btnPulse.addEventListener('click', showScan);
     els.btnBack.addEventListener('click', showMenu);

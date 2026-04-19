@@ -3,7 +3,7 @@
 // Bump the version to force a cache refresh.
 // ============================================
 
-var CACHE_NAME = 'checkup-v1';
+var CACHE_NAME = 'checkup-v2';
 
 // App shell — always cached
 var SHELL_ASSETS = [
@@ -14,18 +14,12 @@ var SHELL_ASSETS = [
   '/manifest.json',
 ];
 
-// Video & icon assets — cached individually so missing files don't block install
+// Icon assets — cached individually so missing files don't block install
 var OPTIONAL_ASSETS = [
   '/assets/icons/icon-192.png',
   '/assets/icons/icon-512.png',
   '/assets/icons/apple-touch-icon.png',
   '/assets/icons/favicon.ico',
-  '/assets/video/thump-idle.webm',
-  '/assets/video/thump-idle.mp4',
-  '/assets/video/thump-talking.webm',
-  '/assets/video/thump-talking.mp4',
-  '/assets/video/thump-cheering.webm',
-  '/assets/video/thump-cheering.mp4',
 ];
 
 self.addEventListener('install', function (event) {
