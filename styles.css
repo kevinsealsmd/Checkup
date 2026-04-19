@@ -1,0 +1,605 @@
+/* ============================================
+   1. CSS CUSTOM PROPERTIES
+   ============================================ */
+:root {
+  /* 1a. Biological pinks — body/heart/vessel elements */
+  --soft-pink: #F4C0D1;
+  --coral-pink: #D4537E;
+  --deep-rose: #993556;
+  --dark-rose: #4B1528;
+  --muted-rose: #72243E;
+
+  /* 1b. UI teals — app chrome, buttons, navigation */
+  --scrub-teal: #7FC9BF;
+  --light-teal: #B8E0DB;
+  --deep-teal: #4A8A82;
+
+  /* 1c. Warm neutrals — backgrounds, celebration */
+  --cream: #FFF4E8;
+  --warm-peach: #FFE4CE;
+  --warm-yellow: #FAC775;
+  --dark-amber: #412402;
+  --camera-dark: #2C2C2A;
+
+  /* 1d. Typography */
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --size-title: 22px;
+  --size-body: 16px;
+  --size-secondary: 14px;
+  --size-bubble: 13px;
+  --size-label: 11px;
+}
+
+/* ============================================
+   2. RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100vh;
+  height: 100dvh; /* iOS Safari: accounts for collapsing address bar */
+  overflow: hidden;
+  overscroll-behavior: contain; /* Disable pull-to-refresh */
+}
+
+body {
+  font-family: var(--font-stack);
+  font-size: var(--size-body);
+  font-weight: 400;
+  color: var(--dark-rose);
+  background-color: var(--cream);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  display: flex;
+  flex-direction: column;
+  /* Safe area insets for notched iPhones */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ============================================
+   3. LAYOUT
+   ============================================ */
+
+/* --- Top bar --- */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--scrub-teal);
+  color: white;
+  padding: 10px 16px;
+  position: relative;
+  flex-shrink: 0;
+  min-height: 44px;
+}
+
+.top-bar__title {
+  font-size: var(--size-title);
+  font-weight: 500;
+  color: white;
+}
+
+.top-bar__back {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: white;
+  font-size: var(--size-body);
+  font-weight: 500;
+  padding: 8px 12px;
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.top-bar__back:active {
+  opacity: 0.7;
+}
+
+/* --- Screens --- */
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* --- Menu screen --- */
+.menu {
+  align-items: center;
+  padding: 24px 20px;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.menu__mascot {
+  width: 96px;
+  height: 96px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menu__mascot video,
+.menu__mascot .svg-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.menu__title {
+  font-size: var(--size-title);
+  font-weight: 500;
+  color: var(--deep-rose);
+}
+
+.menu__subtitle {
+  font-size: var(--size-secondary);
+  color: var(--muted-rose);
+}
+
+.tool-list {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* ============================================
+   4. COMPONENTS
+   ============================================ */
+
+/* --- Buttons --- */
+.btn {
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-stack);
+  font-size: var(--size-body);
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+  padding: 12px 28px;
+  transition: transform 0.1s ease-out;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn:disabled:active {
+  transform: none;
+}
+
+.btn--primary {
+  background-color: var(--coral-pink);
+  color: white;
+}
+
+.btn--secondary {
+  background-color: white;
+  color: var(--dark-rose);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Tool cards --- */
+.tool-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: none;
+  text-align: left;
+  font-family: var(--font-stack);
+  cursor: pointer;
+  transition: transform 0.1s ease-out;
+  width: 100%;
+}
+
+.tool-card:active {
+  transform: scale(0.96);
+}
+
+.tool-card--active {
+  background-color: var(--soft-pink);
+}
+
+.tool-card--disabled {
+  background-color: var(--warm-peach);
+  cursor: default;
+  opacity: 0.7;
+}
+
+.tool-card--disabled:active {
+  transform: none;
+}
+
+.tool-card__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool-card__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.tool-card__text {
+  flex: 1;
+}
+
+.tool-card__name {
+  font-size: var(--size-body);
+  font-weight: 500;
+  color: var(--dark-rose);
+}
+
+.tool-card__desc {
+  font-size: var(--size-secondary);
+  color: var(--muted-rose);
+  margin-top: 2px;
+}
+
+.tool-card__badge {
+  font-size: var(--size-label);
+  color: var(--deep-teal);
+  background-color: var(--light-teal);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+/* --- Scan screen layout --- */
+.scan {
+  display: flex;
+  flex-direction: column;
+}
+
+.scan-top {
+  flex: 0 0 35%;
+  background-color: var(--cream);
+  padding: 16px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.thump-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.thump-video-wrap {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  position: relative;
+  background-color: var(--cream);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.thump-video-wrap video,
+.thump-video-wrap .svg-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* --- Speech bubble --- */
+.speech-bubble {
+  flex: 1;
+  background-color: white;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: var(--size-bubble);
+  color: var(--dark-rose);
+  position: relative;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  line-height: 1.4;
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 14px;
+  width: 12px;
+  height: 12px;
+  background: white;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+
+/* --- BPM display --- */
+.bpm-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.bpm-number {
+  font-size: 46px;
+  font-weight: 500;
+  color: var(--coral-pink);
+  line-height: 1;
+  min-width: 80px;
+  text-align: center;
+}
+
+.bpm-label {
+  font-size: var(--size-label);
+  color: var(--muted-rose);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* --- Scan bottom panel (camera area) --- */
+.scan-bottom {
+  flex: 1;
+  position: relative;
+  background-color: var(--camera-dark);
+  overflow: hidden;
+}
+
+.camera-feed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.camera-denied {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--size-secondary);
+  line-height: 1.5;
+}
+
+/* --- Corner brackets --- */
+.corner-brackets {
+  position: absolute;
+  inset: 12px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.corner-brackets::before,
+.corner-brackets::after,
+.corner-brackets .cb-bottom::before,
+.corner-brackets .cb-bottom::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--soft-pink);
+  border-style: solid;
+  border-width: 0;
+}
+
+.corner-brackets::before {
+  top: 0; left: 0;
+  border-top-width: 3px;
+  border-left-width: 3px;
+  border-top-left-radius: 8px;
+}
+
+.corner-brackets::after {
+  top: 0; right: 0;
+  border-top-width: 3px;
+  border-right-width: 3px;
+  border-top-right-radius: 8px;
+}
+
+.corner-brackets .cb-bottom::before {
+  bottom: 0; left: 0;
+  border-bottom-width: 3px;
+  border-left-width: 3px;
+  border-bottom-left-radius: 8px;
+}
+
+.corner-brackets .cb-bottom::after {
+  bottom: 0; right: 0;
+  border-bottom-width: 3px;
+  border-right-width: 3px;
+  border-bottom-right-radius: 8px;
+}
+
+/* --- Vessel SVG overlay --- */
+.vessel-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 90px;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vessel-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Vessel idle state: gentle pulse */
+.vessel-wrap--idle .vessel-tube {
+  filter: drop-shadow(0 0 4px rgba(212, 83, 126, 0.3));
+  animation: vessel-pulse 2s ease-in-out infinite;
+}
+
+/* Vessel active state: bright glow + flowing cells */
+.vessel-wrap--active .vessel-tube {
+  filter: drop-shadow(0 0 10px rgba(212, 83, 126, 0.6));
+}
+
+.vessel-wrap--active .vessel-cell--1 {
+  animation: cell-flow 2s linear infinite;
+}
+.vessel-wrap--active .vessel-cell--2 {
+  animation: cell-flow 2s linear infinite 0.4s;
+}
+.vessel-wrap--active .vessel-cell--3 {
+  animation: cell-flow 2s linear infinite 0.8s;
+}
+.vessel-wrap--active .vessel-cell--4 {
+  animation: cell-flow 2s linear infinite 1.2s;
+}
+.vessel-wrap--active .vessel-cell--5 {
+  animation: cell-flow 2s linear infinite 1.6s;
+}
+
+/* Hide cells when idle */
+.vessel-wrap--idle .vessel-cell {
+  opacity: 0;
+}
+
+/* Transition between idle and active */
+.vessel-wrap {
+  transition: opacity 800ms ease-in-out;
+}
+
+/* --- Searching overlay --- */
+.searching-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spin-ring {
+  width: 80px;
+  height: 80px;
+  border: 4px dashed var(--scrub-teal);
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+
+/* --- Sparkle burst --- */
+.sparkle-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  pointer-events: none;
+  width: 120px;
+  height: 120px;
+}
+
+.sparkle-burst.playing {
+  animation: sparkle-pop 900ms ease-out forwards;
+}
+
+/* --- Action bar --- */
+.action-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.4));
+}
+
+/* ============================================
+   5. ANIMATIONS
+   ============================================ */
+
+@keyframes vessel-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+@keyframes cell-flow {
+  0% { transform: translateX(0px); }
+  100% { transform: translateX(500px); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes sparkle-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.08); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.05); }
+  60% { transform: scale(1); }
+}
+
+/* ============================================
+   6. SVG FALLBACK STYLING
+   ============================================ */
+.svg-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg-fallback .thump-heart {
+  animation: heartbeat 1.2s ease-in-out infinite;
+  transform-origin: center;
+}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#7FC9BF">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/assets/icons/favicon.ico">
+  <link rel="stylesheet" href="/styles.css">
+  <title>Checkup!</title>
+</head>
+<body>
+
+  <!-- Top bar (always visible) -->
+  <header class="top-bar">
+    <button class="top-bar__back" id="btn-back" hidden aria-label="Back">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M13 4L7 10L13 16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <h1 class="top-bar__title">Checkup!</h1>
+  </header>
+
+  <!-- ==========================================
+       SCREEN: Menu
+       ========================================== -->
+  <section class="screen menu" id="screen-menu">
+
+    <!-- Dr. Thump mascot (menu) -->
+    <div class="menu__mascot" id="mascot-menu">
+      <video id="thump-menu-video" muted autoplay loop playsinline>
+        <source src="/assets/video/thump-idle.webm" type="video/webm">
+        <source src="/assets/video/thump-idle.mp4" type="video/mp4">
+      </video>
+      <div class="svg-fallback" id="thump-menu-fallback" hidden>
+        <!-- Inline SVG: simplified Dr. Thump -->
+        <svg viewBox="0 0 96 96" width="96" height="96">
+          <!-- Heart body -->
+          <path class="thump-heart" d="M48 82 C48 82 16 60 16 38 C16 24 26 16 36 16 C42 16 46 20 48 24 C50 20 54 16 60 16 C70 16 80 24 80 38 C80 60 48 82 48 82Z" fill="#F4C0D1"/>
+          <!-- Scrub top -->
+          <rect x="32" y="48" width="32" height="22" rx="4" fill="#7FC9BF"/>
+          <!-- V-neck -->
+          <path d="M44 48 L48 56 L52 48" fill="#F4C0D1"/>
+          <!-- Eyes -->
+          <circle cx="40" cy="36" r="2.5" fill="#4B1528"/>
+          <circle cx="56" cy="36" r="2.5" fill="#4B1528"/>
+          <!-- Smile -->
+          <path d="M44 42 Q48 46 52 42" stroke="#4B1528" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <!-- Cheek blush -->
+          <ellipse cx="36" cy="40" rx="4" ry="2.5" fill="#F4C0D1" opacity="0.5"/>
+          <ellipse cx="60" cy="40" rx="4" ry="2.5" fill="#F4C0D1" opacity="0.5"/>
+          <!-- Stethoscope -->
+          <path d="M38 50 Q38 58 48 62 Q58 58 58 50" stroke="#FAC775" stroke-width="2" fill="none"/>
+          <circle cx="48" cy="64" r="3" fill="#C0C0C0"/>
+        </svg>
+      </div>
+    </div>
+
+    <h2 class="menu__title">Dr. Thump's Kit</h2>
+    <p class="menu__subtitle">Pick a tool to try!</p>
+
+    <div class="tool-list">
+      <!-- Pulse finder (active) -->
+      <button class="tool-card tool-card--active" id="btn-pulse">
+        <div class="tool-card__icon">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M20 35 C20 35 6 25 6 16 C6 10 10 6 15 6 C18 6 20 8 20 8 C20 8 22 6 25 6 C30 6 34 10 34 16 C34 25 20 35 20 35Z" fill="#F4C0D1" stroke="#D4537E" stroke-width="1.5"/>
+            <path d="M8 20 L14 20 L17 13 L20 26 L23 17 L26 20 L32 20" stroke="#D4537E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="tool-card__text">
+          <div class="tool-card__name">Pulse finder</div>
+          <div class="tool-card__desc">Find a heartbeat with the camera</div>
+        </div>
+      </button>
+
+      <!-- Stethoscope (coming soon) -->
+      <div class="tool-card tool-card--disabled">
+        <div class="tool-card__icon">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M12 8 L12 22 Q12 30 20 30 Q28 30 28 22 L28 8" stroke="#D4537E" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <circle cx="20" cy="33" r="3.5" stroke="#D4537E" stroke-width="1.5" fill="none"/>
+          </svg>
+        </div>
+        <div class="tool-card__text">
+          <div class="tool-card__name">Stethoscope</div>
+          <div class="tool-card__desc">Listen to a heartbeat</div>
+        </div>
+        <span class="tool-card__badge">Coming soon</span>
+      </div>
+
+      <!-- Lung listener (coming soon) -->
+      <div class="tool-card tool-card--disabled">
+        <div class="tool-card__icon">
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M20 8 L20 24" stroke="#D4537E" stroke-width="2" stroke-linecap="round"/>
+            <path d="M20 14 Q12 18 10 28 Q9 33 14 33 L18 33 Q20 33 20 31" stroke="#D4537E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <path d="M20 14 Q28 18 30 28 Q31 33 26 33 L22 33 Q20 33 20 31" stroke="#D4537E" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="tool-card__text">
+          <div class="tool-card__name">Lung listener</div>
+          <div class="tool-card__desc">Hear breathing sounds</div>
+        </div>
+        <span class="tool-card__badge">Coming soon</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SCREEN: Scan (Pulse Finder)
+       ========================================== -->
+  <section class="screen scan" id="screen-scan" hidden>
+
+    <!-- Top panel: Dr. Thump + speech bubble + BPM -->
+    <div class="scan-top">
+      <div class="thump-row">
+        <div class="thump-video-wrap" id="thump-scan-wrap">
+          <!-- Three separate video elements for instant state swaps -->
+          <video id="thump-scan-idle" muted autoplay loop playsinline>
+            <source src="/assets/video/thump-idle.webm" type="video/webm">
+            <source src="/assets/video/thump-idle.mp4" type="video/mp4">
+          </video>
+          <video id="thump-scan-talking" muted autoplay loop playsinline hidden>
+            <source src="/assets/video/thump-talking.webm" type="video/webm">
+            <source src="/assets/video/thump-talking.mp4" type="video/mp4">
+          </video>
+          <video id="thump-scan-cheering" muted autoplay loop playsinline hidden>
+            <source src="/assets/video/thump-cheering.webm" type="video/webm">
+            <source src="/assets/video/thump-cheering.mp4" type="video/mp4">
+          </video>
+          <div class="svg-fallback" id="thump-scan-fallback" hidden>
+            <svg viewBox="0 0 52 52" width="52" height="52">
+              <path class="thump-heart" d="M26 45 C26 45 8 33 8 20 C8 13 13 8 19 8 C22 8 25 11 26 13 C27 11 30 8 33 8 C39 8 44 13 44 20 C44 33 26 45 26 45Z" fill="#F4C0D1"/>
+              <rect x="17" y="26" width="18" height="12" rx="3" fill="#7FC9BF"/>
+              <path d="M24 26 L26 30 L28 26" fill="#F4C0D1"/>
+              <circle cx="22" cy="19" r="1.5" fill="#4B1528"/>
+              <circle cx="30" cy="19" r="1.5" fill="#4B1528"/>
+              <path d="M24 23 Q26 25 28 23" stroke="#4B1528" stroke-width="1" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="speech-bubble" id="speech-bubble">
+          Point the camera at a wrist and tap Scan!
+        </div>
+      </div>
+
+      <div class="bpm-display">
+        <span class="bpm-number" id="bpm-number">--</span>
+        <span class="bpm-label">bpm</span>
+      </div>
+    </div>
+
+    <!-- Bottom panel: camera feed + vessel + overlays -->
+    <div class="scan-bottom">
+      <!-- Camera feed -->
+      <video class="camera-feed" id="camera-feed" autoplay playsinline muted></video>
+
+      <!-- Camera denied message -->
+      <div class="camera-denied" id="camera-denied" hidden>
+        Dr. Thump needs your camera to find a pulse! Tap the camera icon in your address bar to turn it on.
+      </div>
+
+      <!-- Corner brackets -->
+      <div class="corner-brackets"><div class="cb-bottom"></div></div>
+
+      <!-- Vessel SVG overlay (replaces vessel video — avoids alpha transparency issues) -->
+      <div class="vessel-wrap vessel-wrap--idle" id="vessel-wrap">
+        <svg class="vessel-svg" viewBox="0 0 400 90" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="vessel-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#F4C0D1" stop-opacity="0.6"/>
+              <stop offset="50%" stop-color="#D4537E" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#F4C0D1" stop-opacity="0.6"/>
+            </linearGradient>
+            <linearGradient id="vessel-glow" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#D4537E" stop-opacity="0"/>
+              <stop offset="50%" stop-color="#D4537E" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#D4537E" stop-opacity="0"/>
+            </linearGradient>
+            <!-- Clip path for blood cells to stay inside vessel -->
+            <clipPath id="vessel-clip">
+              <path d="M-10 30 Q50 28 100 32 Q200 38 300 34 Q350 32 410 30 L410 60 Q350 58 300 56 Q200 52 100 58 Q50 62 -10 60 Z"/>
+            </clipPath>
+          </defs>
+          <!-- Vessel wall (outer glow) -->
+          <path class="vessel-tube" d="M-10 25 Q50 22 100 27 Q200 35 300 29 Q350 26 410 25 L410 65 Q350 64 300 61 Q200 55 100 63 Q50 68 -10 65 Z" fill="url(#vessel-gradient)" stroke="#D4537E" stroke-width="0.5" stroke-opacity="0.3"/>
+          <!-- Blood cells (animated in active state) -->
+          <g clip-path="url(#vessel-clip)">
+            <circle class="vessel-cell vessel-cell--1" cx="-20" cy="45" r="5" fill="#D4537E" opacity="0.5"/>
+            <circle class="vessel-cell vessel-cell--2" cx="-60" cy="42" r="4" fill="#D4537E" opacity="0.4"/>
+            <circle class="vessel-cell vessel-cell--3" cx="-100" cy="48" r="5.5" fill="#D4537E" opacity="0.45"/>
+            <circle class="vessel-cell vessel-cell--4" cx="-140" cy="44" r="3.5" fill="#D4537E" opacity="0.35"/>
+            <circle class="vessel-cell vessel-cell--5" cx="-180" cy="47" r="4.5" fill="#D4537E" opacity="0.4"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Searching overlay -->
+      <div class="searching-overlay" id="searching-overlay" hidden>
+        <div class="spin-ring"></div>
+      </div>
+
+      <!-- Sparkle burst -->
+      <div class="sparkle-burst" id="sparkle-burst" hidden>
+        <svg viewBox="0 0 120 120" width="120" height="120">
+          <g fill="#FAC775">
+            <!-- 4-point star sparkles -->
+            <polygon points="60,10 63,50 60,55 57,50" opacity="0.9"/>
+            <polygon points="60,110 63,70 60,65 57,70" opacity="0.9"/>
+            <polygon points="10,60 50,57 55,60 50,63" opacity="0.9"/>
+            <polygon points="110,60 70,57 65,60 70,63" opacity="0.9"/>
+            <!-- Diagonal sparkles -->
+            <polygon points="25,25 50,52 48,55 45,50" opacity="0.7"/>
+            <polygon points="95,25 68,52 65,50 70,48" opacity="0.7"/>
+            <polygon points="25,95 50,68 52,65 55,70" opacity="0.7"/>
+            <polygon points="95,95 68,68 70,65 65,70" opacity="0.7"/>
+          </g>
+          <!-- Center glow -->
+          <circle cx="60" cy="60" r="12" fill="#FAC775" opacity="0.4"/>
+          <circle cx="60" cy="60" r="6" fill="white" opacity="0.6"/>
+        </svg>
+      </div>
+
+      <!-- Action bar -->
+      <div class="action-bar">
+        <button class="btn btn--secondary" id="btn-back-scan">Back</button>
+        <button class="btn btn--primary" id="btn-scan">Scan</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="/app.js"></script>
+</body>
+</html>
