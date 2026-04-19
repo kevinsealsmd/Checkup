@@ -1,6 +1,6 @@
 # Checkup!
 
-A kid-friendly pretend medical kit PWA for classroom use. Kids can find a (fake) heartbeat using the phone's camera, complete with a cartoon vessel overlay and synthesized doppler audio.
+A kid-friendly pretend medical kit PWA for classroom use. Hosted on Cloudflare Pages. Kids can find a (fake) heartbeat using the phone's camera, complete with a cartoon vessel overlay and synthesized doppler audio.
 
 ## Running locally
 
