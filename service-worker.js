@@ -3,7 +3,7 @@
 // Bump the version to force a cache refresh.
 // ============================================
 
-var CACHE_NAME = 'checkup-v23';
+var CACHE_NAME = 'checkup-v24';
 
 // App shell — always cached
 var SHELL_ASSETS = [
@@ -19,7 +19,7 @@ var OPTIONAL_ASSETS = [
   '/assets/icons/icon-192.png',
   '/assets/icons/icon-512.png',
   '/assets/icons/apple-touch-icon.png',
-  '/assets/icons/favicon.ico',
+  '/assets/icons/favicon.png',
   '/assets/images/Doppler_Device_Background.png',
   '/assets/images/logo.png',
   '/assets/video/Doppler_Intro.mp4',
