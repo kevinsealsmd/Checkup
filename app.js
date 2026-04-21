@@ -43,7 +43,6 @@
     waveformCanvas: $('waveform-canvas'),
     screenBpm: $('screen-bpm'),
     bpmNumber: $('bpm-number'),
-    screenCheer: $('screen-cheer'),
     // Overlays
     searchingOverlay: $('searching-overlay'),
     sparkleBurst: $('sparkle-burst'),
@@ -107,9 +106,6 @@
     // BPM readout (shown only in found state)
     els.screenBpm.classList.toggle('visible', state.scanPhase === 'found');
     els.bpmNumber.textContent = state.bpm != null ? state.bpm : '--';
-
-    // Cheer phrase
-    els.screenCheer.textContent = state.cheerPhrase;
 
     // Searching overlay
     els.searchingOverlay.classList.toggle('visible', state.scanPhase === 'searching');

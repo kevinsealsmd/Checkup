@@ -3,7 +3,7 @@
 // Bump the version to force a cache refresh.
 // ============================================
 
-var CACHE_NAME = 'checkup-v21';
+var CACHE_NAME = 'checkup-v22';
 
 // App shell — always cached
 var SHELL_ASSETS = [
