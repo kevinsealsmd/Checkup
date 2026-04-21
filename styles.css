@@ -74,20 +74,15 @@ body {
   justify-content: center;
   background-color: var(--scrub-teal);
   color: white;
-  padding: 0 16px;
+  padding: 6px 16px;
   position: relative;
   flex-shrink: 0;
-  height: 40px;
-  overflow: hidden;
 }
 
-/* The logo PNG has large vertical whitespace baked in (3168x1344).
-   Negative margins visually crop the padding so the bar stays tight. */
 .top-bar__logo {
   width: 60%;
   max-width: 240px;
   height: auto;
-  margin: -20% 0;
 }
 
 .top-bar__back {
