@@ -417,6 +417,85 @@
   }
 
   // ============================================
+  // 8b. BACKGROUND MUSIC
+  // ============================================
+  // A gentle, looping music-box melody synthesized with Web Audio API.
+  // Plays softly while the Pulse Finder tool is open.
+
+  let bgMusicInterval = null;
+  let bgMusicGain = null;
+
+  // Simple pentatonic melody — sounds happy and kid-friendly
+  var melodyNotes = [
+    523, 587, 659, 784, 880,  // C5 D5 E5 G5 A5
+    784, 659, 784, 880, 1047, // G5 E5 G5 A5 C6
+    880, 784, 659, 587, 523,  // A5 G5 E5 D5 C5
+    587, 659, 784, 659, 523,  // D5 E5 G5 E5 C5
+  ];
+
+  function startBgMusic() {
+    if (bgMusicInterval) return;
+    initAudioContext();
+
+    // Master gain for background music — keep it soft
+    bgMusicGain = audioCtx.createGain();
+    bgMusicGain.gain.value = 0.08;
+    bgMusicGain.connect(audioCtx.destination);
+
+    var noteIndex = 0;
+    var noteInterval = 400; // ms between notes
+
+    function playNote() {
+      if (!bgMusicGain) return;
+      var freq = melodyNotes[noteIndex % melodyNotes.length];
+      noteIndex++;
+
+      var osc = audioCtx.createOscillator();
+      var noteGain = audioCtx.createGain();
+      var now = audioCtx.currentTime;
+
+      // Sine wave for soft music-box tone
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+
+      // Add a subtle harmonic for shimmer
+      var osc2 = audioCtx.createOscillator();
+      var gain2 = audioCtx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.value = freq * 2; // octave above
+      gain2.gain.setValueAtTime(0.15, now); // much quieter
+      gain2.gain.linearRampToValueAtTime(0, now + 0.3);
+      osc2.connect(gain2);
+      gain2.connect(bgMusicGain);
+      osc2.start(now);
+      osc2.stop(now + 0.35);
+
+      // Gentle bell-like envelope
+      noteGain.gain.setValueAtTime(0.6, now);
+      noteGain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+      osc.connect(noteGain);
+      noteGain.connect(bgMusicGain);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    }
+
+    playNote(); // first note immediately
+    bgMusicInterval = setInterval(playNote, noteInterval);
+  }
+
+  function stopBgMusic() {
+    if (bgMusicInterval) {
+      clearInterval(bgMusicInterval);
+      bgMusicInterval = null;
+    }
+    if (bgMusicGain) {
+      bgMusicGain.disconnect();
+      bgMusicGain = null;
+    }
+  }
+
+  // ============================================
   // 9. SCAN STATE MACHINE
   // ============================================
 
@@ -453,6 +532,7 @@
       els.foundVideo.classList.remove('visible');
       state.scanPhase = 'found';
       render();
+      stopBgMusic(); // pause music while doppler audio plays
       startWaveform(state.bpm);
       triggerSparkleBurst();
       startDopplerLoop(state.bpm);
@@ -462,6 +542,7 @@
   function resetScan() {
     stopDopplerLoop();
     stopWaveform();
+    startBgMusic(); // resume music after scan reset
     clearTimeout(searchTimeout);
     searchTimeout = null;
     // Stop found video if playing
@@ -494,6 +575,7 @@
   function showMenu() {
     resetScan();
     stopCamera();
+    stopBgMusic();
     // Reset intro video for next time
     els.introVideo.classList.remove('visible');
     els.introVideo.pause();
@@ -522,6 +604,7 @@
     els.introVideo.onended = function () {
       els.introVideo.classList.remove('visible');
       requestCamera();
+      startBgMusic();
     };
   }
 
@@ -533,10 +616,13 @@
     if (document.hidden) {
       stopWaveform();
       stopDopplerLoop();
+      stopBgMusic();
     } else {
       if (state.screen === 'scan' && state.scanPhase === 'found' && state.bpm) {
         startWaveform(state.bpm);
         startDopplerLoop(state.bpm);
+      } else if (state.screen === 'scan' && state.scanPhase === 'ready') {
+        startBgMusic();
       }
     }
   }

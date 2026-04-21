@@ -291,6 +291,9 @@ body {
   animation: scan-bg-shift 6s ease-in-out infinite;
   position: relative;
   overflow: hidden;
+  /* Extend gradient into the safe area so no white bar shows at bottom */
+  margin-bottom: calc(-1 * env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .device-frame {
