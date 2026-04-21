@@ -117,7 +117,7 @@
         <video class="device-screen__camera" id="camera-feed" autoplay playsinline muted></video>
 
         <!-- Camera denied message -->
-        <div class="device-screen__denied" id="camera-denied" hidden>
+        <div class="device-screen__denied" id="camera-denied">
           Tap the camera icon in your address bar to turn on the camera!
         </div>
 
@@ -125,7 +125,7 @@
         <canvas class="device-screen__waveform" id="waveform-canvas"></canvas>
 
         <!-- BPM readout superimposed on waveform -->
-        <div class="device-screen__bpm" id="screen-bpm" hidden>
+        <div class="device-screen__bpm" id="screen-bpm">
           <span class="device-screen__bpm-number" id="bpm-number">--</span>
           <span class="device-screen__bpm-label">bpm</span>
         </div>
@@ -134,12 +134,12 @@
         <div class="device-screen__cheer" id="screen-cheer"></div>
 
         <!-- Searching overlay -->
-        <div class="device-screen__searching" id="searching-overlay" hidden>
+        <div class="device-screen__searching" id="searching-overlay">
           <div class="spin-ring"></div>
         </div>
 
         <!-- Sparkle burst -->
-        <div class="device-screen__sparkle" id="sparkle-burst" hidden>
+        <div class="device-screen__sparkle" id="sparkle-burst">
           <svg viewBox="0 0 120 120" width="120" height="120">
             <g fill="#FAC775">
               <polygon points="60,10 63,50 60,55 57,50" opacity="0.9"/>
@@ -157,7 +157,7 @@
         </div>
 
         <!-- Placeholder (before first scan) -->
-        <div class="device-screen__placeholder" id="screen-placeholder">
+        <div class="device-screen__placeholder visible" id="screen-placeholder">
           <svg viewBox="0 0 40 40" fill="none" width="28" height="28">
             <path d="M20 35 C20 35 6 25 6 16 C6 10 10 6 15 6 C18 6 20 8 20 8 C20 8 22 6 25 6 C30 6 34 10 34 16 C34 25 20 35 20 35Z" fill="#F4C0D1" stroke="#D4537E" stroke-width="1.5"/>
           </svg>

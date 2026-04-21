@@ -101,25 +101,27 @@
     if (state.screen === 'menu') return;
 
     // --- Scan screen ---
+    // Use class toggling instead of hidden attribute — hidden gets
+    // overridden by CSS display/position properties on absolute elements.
 
     // Placeholder (shown only in ready state)
-    els.screenPlaceholder.hidden = state.scanPhase !== 'ready';
+    els.screenPlaceholder.classList.toggle('visible', state.scanPhase === 'ready');
 
     // Camera denied message
-    els.cameraDenied.hidden = state.cameraStatus !== 'denied';
+    els.cameraDenied.classList.toggle('visible', state.cameraStatus === 'denied');
 
     // Waveform canvas visibility (shown only in found state)
-    els.waveformCanvas.hidden = state.scanPhase !== 'found';
+    els.waveformCanvas.classList.toggle('visible', state.scanPhase === 'found');
 
     // BPM readout (shown only in found state)
-    els.screenBpm.hidden = state.scanPhase !== 'found';
+    els.screenBpm.classList.toggle('visible', state.scanPhase === 'found');
     els.bpmNumber.textContent = state.bpm != null ? state.bpm : '--';
 
     // Cheer phrase
     els.screenCheer.textContent = state.cheerPhrase;
 
     // Searching overlay
-    els.searchingOverlay.hidden = state.scanPhase !== 'searching';
+    els.searchingOverlay.classList.toggle('visible', state.scanPhase === 'searching');
   }
 
   // ============================================
@@ -429,14 +431,14 @@
   }
 
   function triggerSparkleBurst() {
-    els.sparkleBurst.hidden = false;
+    els.sparkleBurst.style.display = 'block';
     els.sparkleBurst.classList.remove('playing');
     void els.sparkleBurst.offsetWidth;
     els.sparkleBurst.classList.add('playing');
 
     setTimeout(function () {
       els.sparkleBurst.classList.remove('playing');
-      els.sparkleBurst.hidden = true;
+      els.sparkleBurst.style.display = '';
     }, 900);
   }
 
