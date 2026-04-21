@@ -23,7 +23,6 @@
 
   const els = {
     // Top bar
-    topBar: document.querySelector('.top-bar'),
     btnBack: $('btn-back'),
 
     // Menu screen
@@ -36,7 +35,6 @@
     // Device frame
     deviceScreen: $('device-screen'),
     deviceScanBtn: $('device-scan-btn'),
-    deviceBackBtn: $('device-back-btn'),
 
     // Screen content
     cameraFeed: $('camera-feed'),
@@ -94,8 +92,7 @@
     els.screenMenu.classList.toggle('screen--active', state.screen === 'menu');
     els.screenScan.classList.toggle('screen--active', state.screen === 'scan');
 
-    // Hide top bar when device frame is showing
-    els.topBar.hidden = state.screen === 'scan';
+    // Back button: only visible when not on menu
     els.btnBack.hidden = state.screen === 'menu';
 
     if (state.screen === 'menu') return;
@@ -485,7 +482,6 @@
     // Navigation
     els.btnPulse.addEventListener('click', showScan);
     els.btnBack.addEventListener('click', showMenu);
-    els.deviceBackBtn.addEventListener('click', showMenu);
 
     // Scan button (invisible overlay on device image)
     els.deviceScanBtn.addEventListener('click', function () {
