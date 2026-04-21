@@ -74,15 +74,14 @@ body {
   justify-content: center;
   background-color: var(--scrub-teal);
   color: white;
-  padding: 10px 16px;
+  padding: 4px 16px;
   position: relative;
   flex-shrink: 0;
-  min-height: 44px;
 }
 
 .top-bar__logo {
-  width: 55%;
-  max-width: 220px;
+  width: 60%;
+  max-width: 240px;
   height: auto;
 }
 
@@ -324,7 +323,7 @@ body {
   top: 34.5%;
   left: 19.5%;
   width: 61.0%;
-  height: 40.0%;
+  height: 41.5%;
   z-index: 3;
   overflow: hidden;
   border-radius: 6px;
