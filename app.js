@@ -23,6 +23,7 @@
 
   const els = {
     // Top bar
+    topBar: document.querySelector('.top-bar'),
     btnBack: $('btn-back'),
 
     // Menu screen
@@ -32,29 +33,23 @@
     // Scan screen
     screenScan: $('screen-scan'),
 
-    // Doppler monitor
-    monitor: $('monitor'),
-    waveformCanvas: $('waveform-canvas'),
-    monitorPlaceholder: $('monitor-placeholder'),
+    // Device frame
+    deviceScreen: $('device-screen'),
+    deviceScanBtn: $('device-scan-btn'),
+    deviceBackBtn: $('device-back-btn'),
 
-    // Readout
-    bpmNumber: $('bpm-number'),
-    cheerPhrase: $('cheer-phrase'),
-
-    // Camera
+    // Screen content
     cameraFeed: $('camera-feed'),
     cameraDenied: $('camera-denied'),
-
-    // Vessel
-    vesselWrap: $('vessel-wrap'),
+    waveformCanvas: $('waveform-canvas'),
+    screenBpm: $('screen-bpm'),
+    bpmNumber: $('bpm-number'),
+    screenCheer: $('screen-cheer'),
+    screenPlaceholder: $('screen-placeholder'),
 
     // Overlays
     searchingOverlay: $('searching-overlay'),
     sparkleBurst: $('sparkle-burst'),
-
-    // Action bar
-    btnBackScan: $('btn-back-scan'),
-    btnScan: $('btn-scan'),
   };
 
   // ============================================
@@ -98,39 +93,33 @@
     // Screen visibility — toggle active class
     els.screenMenu.classList.toggle('screen--active', state.screen === 'menu');
     els.screenScan.classList.toggle('screen--active', state.screen === 'scan');
+
+    // Hide top bar when device frame is showing
+    els.topBar.hidden = state.screen === 'scan';
     els.btnBack.hidden = state.screen === 'menu';
 
     if (state.screen === 'menu') return;
 
     // --- Scan screen ---
 
-    // BPM readout
-    els.bpmNumber.textContent = state.bpm != null ? state.bpm : '--';
-
-    // Cheer phrase
-    els.cheerPhrase.textContent = state.cheerPhrase;
-
-    // Monitor placeholder (visible only before first scan)
-    els.monitorPlaceholder.hidden = state.scanPhase !== 'ready';
-
-    // Scan button
-    els.btnScan.textContent = state.scanPhase === 'found' ? 'Scan again' : 'Scan';
-    els.btnScan.disabled = state.scanPhase === 'searching';
-
-    // Searching overlay
-    els.searchingOverlay.hidden = state.scanPhase !== 'searching';
+    // Placeholder (shown only in ready state)
+    els.screenPlaceholder.hidden = state.scanPhase !== 'ready';
 
     // Camera denied message
     els.cameraDenied.hidden = state.cameraStatus !== 'denied';
 
-    // Vessel state
-    if (state.scanPhase === 'found') {
-      els.vesselWrap.classList.remove('vessel-wrap--idle');
-      els.vesselWrap.classList.add('vessel-wrap--active');
-    } else {
-      els.vesselWrap.classList.remove('vessel-wrap--active');
-      els.vesselWrap.classList.add('vessel-wrap--idle');
-    }
+    // Waveform canvas visibility (shown only in found state)
+    els.waveformCanvas.hidden = state.scanPhase !== 'found';
+
+    // BPM readout (shown only in found state)
+    els.screenBpm.hidden = state.scanPhase !== 'found';
+    els.bpmNumber.textContent = state.bpm != null ? state.bpm : '--';
+
+    // Cheer phrase
+    els.screenCheer.textContent = state.cheerPhrase;
+
+    // Searching overlay
+    els.searchingOverlay.hidden = state.scanPhase !== 'searching';
   }
 
   // ============================================
@@ -143,52 +132,40 @@
   // diastolic bump, similar to an arterial doppler waveform.
 
   let waveformAnimId = null;
-  let waveformData = [];      // ring buffer of y-values (0–1) scrolling left
-  let waveformPhase = 0;      // current phase within a beat cycle (0–1)
+  let waveformData = [];
+  let waveformPhase = 0;
   let waveformLastTime = 0;
 
   function initWaveformCanvas() {
     var canvas = els.waveformCanvas;
-    var rect = els.monitor.getBoundingClientRect();
-    // Use devicePixelRatio for sharp rendering on retina displays
+    var rect = els.deviceScreen.getBoundingClientRect();
     var dpr = window.devicePixelRatio || 1;
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     var ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
-    // Store logical dimensions for drawing
     canvas._logicalW = rect.width;
     canvas._logicalH = rect.height;
   }
 
-  // Generate a doppler-style waveform value for a given phase (0–1 within one beat)
   function dopplerWaveValue(phase) {
-    // Systolic peak: sharp upstroke at ~0.05–0.20 of the cycle
-    // Diastolic notch + bump: small bump at ~0.30–0.45
-    // Rest: near baseline
     if (phase < 0.05) {
-      // Upstroke
       var t = phase / 0.05;
       return 0.1 + t * 0.8;
     } else if (phase < 0.15) {
-      // Systolic peak and early downstroke
       var t = (phase - 0.05) / 0.10;
       return 0.9 - t * 0.5;
     } else if (phase < 0.25) {
-      // Continuing downstroke
       var t = (phase - 0.15) / 0.10;
       return 0.4 - t * 0.2;
     } else if (phase < 0.30) {
-      // Dicrotic notch (small dip)
       var t = (phase - 0.25) / 0.05;
       return 0.2 - t * 0.08;
     } else if (phase < 0.40) {
-      // Diastolic bump
       var t = (phase - 0.30) / 0.10;
       var bump = Math.sin(t * Math.PI) * 0.2;
       return 0.12 + bump;
     } else {
-      // Diastolic runoff — slowly decay to baseline
       var t = (phase - 0.40) / 0.60;
       return 0.12 * (1 - t * 0.7);
     }
@@ -201,58 +178,46 @@
     var h = canvas._logicalH;
     var ctx = canvas.getContext('2d');
 
-    // Number of columns we render (one per ~2px for performance)
     var cols = Math.ceil(w / 2);
     waveformData = new Array(cols).fill(0);
     waveformPhase = 0;
     waveformLastTime = performance.now();
 
-    var beatDuration = 60000 / bpm; // ms per beat
-    // How much phase advances per ms
+    var beatDuration = 60000 / bpm;
     var phasePerMs = 1 / beatDuration;
-    // How many columns scroll per ms (scroll full width in ~3 seconds)
     var scrollSpeed = cols / 3000;
-
     var accumScroll = 0;
 
     function drawFrame(now) {
       var dt = now - waveformLastTime;
       waveformLastTime = now;
-      // Cap dt to avoid huge jumps if tab was backgrounded
       if (dt > 100) dt = 16;
 
-      // Advance phase
       waveformPhase += phasePerMs * dt;
       if (waveformPhase >= 1) waveformPhase -= 1;
 
-      // Scroll: accumulate fractional columns
       accumScroll += scrollSpeed * dt;
       var colsToAdd = Math.floor(accumScroll);
       accumScroll -= colsToAdd;
 
-      // Push new data points
       for (var i = 0; i < colsToAdd; i++) {
-        // Advance phase for each sub-column too
         var subPhase = waveformPhase + (i / colsToAdd) * phasePerMs * dt;
         if (subPhase >= 1) subPhase -= 1;
         var val = dopplerWaveValue(subPhase);
-        // Add slight noise for organic feel
         val += (Math.random() - 0.5) * 0.03;
         waveformData.push(Math.max(0, Math.min(1, val)));
       }
-      // Trim from the front to keep fixed length
       while (waveformData.length > cols) {
         waveformData.shift();
       }
 
-      // Draw
       ctx.clearRect(0, 0, w, h);
 
-      // Dark background with subtle grid lines
+      // Dark background
       ctx.fillStyle = '#1a1a18';
       ctx.fillRect(0, 0, w, h);
 
-      // Horizontal grid lines
+      // Subtle grid lines
       ctx.strokeStyle = 'rgba(127, 201, 191, 0.08)';
       ctx.lineWidth = 0.5;
       for (var g = 1; g < 4; g++) {
@@ -264,7 +229,7 @@
       }
 
       // Waveform trace
-      var margin = 8;
+      var margin = 6;
       var drawH = h - margin * 2;
       ctx.beginPath();
       ctx.strokeStyle = '#D4537E';
@@ -274,16 +239,15 @@
 
       for (var c = 0; c < waveformData.length; c++) {
         var x = (c / (cols - 1)) * w;
-        // Invert y: higher value = higher on screen
         var y = margin + drawH * (1 - waveformData[c]);
         if (c === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
 
-      // Glow effect: draw the same path wider and translucent
+      // Glow
       ctx.strokeStyle = 'rgba(212, 83, 126, 0.25)';
-      ctx.lineWidth = 6;
+      ctx.lineWidth = 5;
       ctx.beginPath();
       for (var c = 0; c < waveformData.length; c++) {
         var x = (c / (cols - 1)) * w;
@@ -306,43 +270,6 @@
     }
   }
 
-  // Draw a flat baseline on the canvas (for searching state)
-  function drawFlatline() {
-    initWaveformCanvas();
-    var canvas = els.waveformCanvas;
-    var w = canvas._logicalW;
-    var h = canvas._logicalH;
-    var ctx = canvas.getContext('2d');
-
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#1a1a18';
-    ctx.fillRect(0, 0, w, h);
-
-    // Grid lines
-    ctx.strokeStyle = 'rgba(127, 201, 191, 0.08)';
-    ctx.lineWidth = 0.5;
-    for (var g = 1; g < 4; g++) {
-      var gy = h * g / 4;
-      ctx.beginPath();
-      ctx.moveTo(0, gy);
-      ctx.lineTo(w, gy);
-      ctx.stroke();
-    }
-
-    // Flat baseline with gentle noise (looks like a live but quiet signal)
-    var margin = 8;
-    var baseY = h - margin - 4;
-    ctx.beginPath();
-    ctx.strokeStyle = '#D4537E';
-    ctx.lineWidth = 1.5;
-    for (var x = 0; x < w; x += 2) {
-      var y = baseY + (Math.random() - 0.5) * 2;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-
   // ============================================
   // 6. CAMERA MODULE
   // ============================================
@@ -359,7 +286,6 @@
         video: { facingMode: 'environment' },
       });
     } catch (_e) {
-      // Rear camera unavailable or denied — try front camera
       try {
         cameraStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user' },
@@ -407,7 +333,7 @@
 
   function createWhiteNoiseBuffer() {
     var sampleRate = audioCtx.sampleRate;
-    var length = sampleRate; // 1 second of noise
+    var length = sampleRate;
     var buffer = audioCtx.createBuffer(1, length, sampleRate);
     var data = buffer.getChannelData(0);
     for (var i = 0; i < length; i++) {
@@ -443,16 +369,14 @@
 
   function playWhooshPair() {
     var now = audioCtx.currentTime;
-    // Whoosh 1 — the "lub"
     playWhoosh(now, 180, 0.6, 280, 40, 200);
-    // Whoosh 2 — the "dub", starts 180ms after lub
     playWhoosh(now + 0.18, 135, 0.4, 200, 40, 160);
   }
 
   function startDopplerLoop(bpm) {
     initAudioContext();
     if (!noiseBuffer) noiseBuffer = createWhiteNoiseBuffer();
-    playWhooshPair(); // Immediate first beat
+    playWhooshPair();
     var interval = 60000 / bpm;
     dopplerInterval = setInterval(playWhooshPair, interval);
   }
@@ -471,19 +395,13 @@
   let searchTimeout = null;
 
   function startScan() {
-    // Resume audio context on user gesture (Safari requirement)
     initAudioContext();
-
-    // Request camera on first scan tap (not on screen entry — less jarring)
     requestCamera();
 
     state.scanPhase = 'searching';
     state.bpm = null;
     state.cheerPhrase = '';
     render();
-
-    // Show flatline on monitor while searching
-    drawFlatline();
 
     searchTimeout = setTimeout(onFound, 2500);
   }
@@ -494,13 +412,8 @@
     state.scanPhase = 'found';
     render();
 
-    // Start scrolling doppler waveform on the monitor
     startWaveform(state.bpm);
-
-    // Sparkle burst (one-shot animation)
     triggerSparkleBurst();
-
-    // Start doppler audio
     startDopplerLoop(state.bpm);
   }
 
@@ -518,7 +431,6 @@
   function triggerSparkleBurst() {
     els.sparkleBurst.hidden = false;
     els.sparkleBurst.classList.remove('playing');
-    // Force reflow to restart animation
     void els.sparkleBurst.offsetWidth;
     els.sparkleBurst.classList.add('playing');
 
@@ -553,11 +465,9 @@
 
   function handleVisibilityChange() {
     if (document.hidden) {
-      // Stop waveform animation and audio to save battery
       stopWaveform();
       stopDopplerLoop();
     } else {
-      // Resume based on current state
       if (state.screen === 'scan' && state.scanPhase === 'found' && state.bpm) {
         startWaveform(state.bpm);
         startDopplerLoop(state.bpm);
@@ -573,10 +483,10 @@
     // Navigation
     els.btnPulse.addEventListener('click', showScan);
     els.btnBack.addEventListener('click', showMenu);
-    els.btnBackScan.addEventListener('click', showMenu);
+    els.deviceBackBtn.addEventListener('click', showMenu);
 
-    // Scan button
-    els.btnScan.addEventListener('click', function () {
+    // Scan button (invisible overlay on device image)
+    els.deviceScanBtn.addEventListener('click', function () {
       if (state.scanPhase === 'found') {
         resetScan();
         startScan();
@@ -585,21 +495,15 @@
       }
     });
 
-    // Visibility change — pause/resume on app switch
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Register service worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js').catch(function () {
-        // Service worker registration failed — app still works, just no offline support
-      });
+      navigator.serviceWorker.register('/service-worker.js').catch(function () {});
     }
 
-    // Initial render
     render();
   }
 
-  // Wait for DOM
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
