@@ -381,13 +381,52 @@
   }
 
   // ============================================
-  // 8. SCAN STATE MACHINE
+  // 8. BUTTON SOUND
+  // ============================================
+  // Synthesized "boop" — a short bubbly rising tone, like a toy button press.
+
+  function playButtonBoop() {
+    initAudioContext();
+    var now = audioCtx.currentTime;
+
+    // Two quick sine tones that rise in pitch — gives a cheerful "boo-boop"
+    // Tone 1: short low note
+    var osc1 = audioCtx.createOscillator();
+    var gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(440, now);
+    osc1.frequency.linearRampToValueAtTime(520, now + 0.08);
+    gain1.gain.setValueAtTime(0.3, now);
+    gain1.gain.linearRampToValueAtTime(0, now + 0.1);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.1);
+
+    // Tone 2: higher note, slight delay — the "boop"
+    var osc2 = audioCtx.createOscillator();
+    var gain2 = audioCtx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(660, now + 0.08);
+    osc2.frequency.linearRampToValueAtTime(880, now + 0.2);
+    gain2.gain.setValueAtTime(0, now);
+    gain2.gain.setValueAtTime(0.3, now + 0.08);
+    gain2.gain.linearRampToValueAtTime(0, now + 0.22);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(now + 0.08);
+    osc2.stop(now + 0.22);
+  }
+
+  // ============================================
+  // 9. SCAN STATE MACHINE
   // ============================================
 
   let searchTimeout = null;
 
   function startScan() {
     initAudioContext();
+    playButtonBoop();
     requestCamera();
 
     state.scanPhase = 'searching';
