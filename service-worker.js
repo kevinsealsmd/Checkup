@@ -3,7 +3,7 @@
 // Bump the version to force a cache refresh.
 // ============================================
 
-var CACHE_NAME = 'checkup-v9';
+var CACHE_NAME = 'checkup-v10';
 
 // App shell — always cached
 var SHELL_ASSETS = [
@@ -21,6 +21,7 @@ var OPTIONAL_ASSETS = [
   '/assets/icons/apple-touch-icon.png',
   '/assets/icons/favicon.ico',
   '/assets/images/Doppler_Device_Background.png',
+  '/assets/images/logo.png',
 ];
 
 self.addEventListener('install', function (event) {
