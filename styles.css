@@ -317,13 +317,14 @@ body {
 }
 
 /* Content window — positioned over the black screen area of the device image.
-   Percentages measured from the source image (717x1304). */
+   Percentages measured from the source image (717x1304):
+   screen top=455 bot=950 left=143 right=574 */
 .device-frame__screen {
   position: absolute;
   top: 34.9%;
-  left: 20.0%;
-  width: 60.1%;
-  height: 34.1%;
+  left: 19.9%;
+  width: 60.2%;
+  height: 38.0%;
   z-index: 3;
   overflow: hidden;
   border-radius: 6px;
