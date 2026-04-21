@@ -77,13 +77,14 @@ body {
   padding: 10px 16px;
   position: relative;
   flex-shrink: 0;
-  min-height: 44px;
+  min-height: 56px;
 }
 
 .top-bar__logo {
-  height: 36px;
+  height: 100%;
   width: auto;
   object-fit: contain;
+  padding: 4px 0;
 }
 
 .top-bar__back {
