@@ -38,6 +38,7 @@
 
     // Screen content
     introVideo: $('intro-video'),
+    foundVideo: $('found-video'),
     cameraFeed: $('camera-feed'),
     cameraDenied: $('camera-denied'),
     waveformCanvas: $('waveform-canvas'),
@@ -437,12 +438,25 @@
   function onFound() {
     state.bpm = generateBpm();
     state.cheerPhrase = pickCheerPhrase(state.bpm);
-    state.scanPhase = 'found';
-    render();
 
-    startWaveform(state.bpm);
-    triggerSparkleBurst();
-    startDopplerLoop(state.bpm);
+    // Play Found_It video, then show waveform
+    els.foundVideo.currentTime = 0;
+    els.foundVideo.muted = false;
+    els.foundVideo.classList.add('visible');
+    var p = els.foundVideo.play();
+    if (p && p.catch) p.catch(function () {});
+
+    // Hide searching overlay while video plays
+    els.searchingOverlay.classList.remove('visible');
+
+    els.foundVideo.onended = function () {
+      els.foundVideo.classList.remove('visible');
+      state.scanPhase = 'found';
+      render();
+      startWaveform(state.bpm);
+      triggerSparkleBurst();
+      startDopplerLoop(state.bpm);
+    };
   }
 
   function resetScan() {
@@ -450,6 +464,11 @@
     stopWaveform();
     clearTimeout(searchTimeout);
     searchTimeout = null;
+    // Stop found video if playing
+    els.foundVideo.pause();
+    els.foundVideo.currentTime = 0;
+    els.foundVideo.classList.remove('visible');
+    els.foundVideo.onended = null;
     state.scanPhase = 'ready';
     state.bpm = null;
     state.cheerPhrase = '';

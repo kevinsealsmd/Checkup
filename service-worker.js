@@ -3,7 +3,7 @@
 // Bump the version to force a cache refresh.
 // ============================================
 
-var CACHE_NAME = 'checkup-v24';
+var CACHE_NAME = 'checkup-v25';
 
 // App shell — always cached
 var SHELL_ASSETS = [
@@ -23,6 +23,7 @@ var OPTIONAL_ASSETS = [
   '/assets/images/Doppler_Device_Background.png',
   '/assets/images/logo.png',
   '/assets/video/Doppler_Intro.mp4',
+  '/assets/video/Found_It.mp4',
 ];
 
 self.addEventListener('install', function (event) {
