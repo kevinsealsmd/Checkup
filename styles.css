@@ -445,33 +445,6 @@ body {
   animation: sparkle-pop 900ms ease-out forwards;
 }
 
-/* Placeholder before first scan */
-.device-screen__placeholder {
-  position: absolute;
-  inset: 0;
-  z-index: 7;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background-color: #1a1a18;
-}
-
-.device-screen__placeholder.visible {
-  display: flex;
-}
-
-.device-screen__placeholder svg {
-  opacity: 0.35;
-}
-
-.device-screen__placeholder span {
-  font-size: var(--size-bubble);
-  color: rgba(244, 192, 209, 0.45);
-  text-align: center;
-  padding: 0 12px;
-}
 
 /* Invisible scan button overlay on the mint button in the image */
 .device-frame__scan-btn {

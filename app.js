@@ -43,8 +43,6 @@
     screenBpm: $('screen-bpm'),
     bpmNumber: $('bpm-number'),
     screenCheer: $('screen-cheer'),
-    screenPlaceholder: $('screen-placeholder'),
-
     // Overlays
     searchingOverlay: $('searching-overlay'),
     sparkleBurst: $('sparkle-burst'),
@@ -98,11 +96,6 @@
     if (state.screen === 'menu') return;
 
     // --- Scan screen ---
-    // Use class toggling instead of hidden attribute — hidden gets
-    // overridden by CSS display/position properties on absolute elements.
-
-    // Placeholder (shown only in ready state)
-    els.screenPlaceholder.classList.toggle('visible', state.scanPhase === 'ready');
 
     // Camera denied message
     els.cameraDenied.classList.toggle('visible', state.cameraStatus === 'denied');
@@ -451,11 +444,15 @@
   }
 
   function showScan() {
+    // Resume audio context on user gesture (Safari requirement)
+    initAudioContext();
     state.screen = 'scan';
     state.scanPhase = 'ready';
     state.bpm = null;
     state.cheerPhrase = '';
     render();
+    // Request camera immediately when entering Pulse Finder
+    requestCamera();
   }
 
   // ============================================
