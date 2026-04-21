@@ -81,8 +81,9 @@ body {
 }
 
 .top-bar__logo {
-  height: 48px;
-  width: auto;
+  width: 55%;
+  max-width: 220px;
+  height: auto;
 }
 
 .top-bar__back {
