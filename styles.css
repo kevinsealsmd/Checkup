@@ -364,16 +364,20 @@ body {
 
 .device-frame {
   position: relative;
-  /* Fill available height, constrain width by aspect ratio */
-  height: 100%;
+  /* Container must match image aspect ratio exactly so percentage-based
+     positioning of children aligns with the image content. */
   aspect-ratio: 717 / 1304;
+  /* Height-constrained: fill available height, width follows from ratio.
+     Width-constrained: fill available width, height follows from ratio. */
+  max-height: 100%;
   max-width: 100%;
 }
 
 .device-frame__img {
+  /* Image fills the container exactly — no object-fit needed because
+     the container already matches the image's aspect ratio. */
   width: 100%;
   height: 100%;
-  object-fit: contain;
   position: relative;
   z-index: 2;
   pointer-events: none;
@@ -381,13 +385,13 @@ body {
 }
 
 /* Content window — positioned over the black screen area of the device image.
-   Must be above the device image (z-index 2) so content is visible. */
+   Percentages measured from the source image (717x1304). */
 .device-frame__screen {
   position: absolute;
   top: 34.9%;
-  left: 19.9%;
+  left: 20.0%;
   width: 60.1%;
-  height: 35.0%;
+  height: 34.1%;
   z-index: 3;
   overflow: hidden;
   border-radius: 6px;
@@ -437,15 +441,18 @@ body {
   display: block;
 }
 
-/* BPM readout superimposed on waveform */
+/* BPM readout superimposed on waveform — top-right corner */
 .device-screen__bpm {
   position: absolute;
-  top: 6px;
-  right: 8px;
+  top: 4px;
+  right: 6px;
   z-index: 4;
   display: none;
   align-items: baseline;
-  gap: 3px;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 3px 7px;
+  border-radius: 8px;
 }
 
 .device-screen__bpm.visible {
@@ -453,33 +460,37 @@ body {
 }
 
 .device-screen__bpm-number {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 500;
   color: var(--coral-pink);
   line-height: 1;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .device-screen__bpm-label {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--soft-pink);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
 }
 
-/* Cheer phrase at bottom of screen */
+/* Cheer phrase at bottom of screen — pill badge */
 .device-screen__cheer {
   position: absolute;
-  bottom: 6px;
-  left: 0;
-  right: 0;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 4;
   text-align: center;
-  font-size: var(--size-bubble);
-  color: var(--warm-yellow);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 500;
+  color: white;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 3px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Searching overlay inside screen */
