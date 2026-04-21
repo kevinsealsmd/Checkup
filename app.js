@@ -93,7 +93,7 @@
     els.screenScan.classList.toggle('screen--active', state.screen === 'scan');
 
     // Back button: only visible when not on menu
-    els.btnBack.hidden = state.screen === 'menu';
+    els.btnBack.classList.toggle('visible', state.screen !== 'menu');
 
     if (state.screen === 'menu') return;
 

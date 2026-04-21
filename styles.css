@@ -99,8 +99,12 @@ body {
   padding: 8px 12px;
   cursor: pointer;
   min-height: 44px;
-  display: flex;
+  display: none;
   align-items: center;
+}
+
+.top-bar__back.visible {
+  display: flex;
 }
 
 .top-bar__back:active {
