@@ -113,7 +113,12 @@
 
       <!-- Content window — positioned over the black screen area of the image -->
       <div class="device-frame__screen" id="device-screen">
-        <!-- Camera feed (visible pre-scan and during search) -->
+        <!-- Intro video (plays once when entering Pulse Finder, then switches to camera) -->
+        <video class="device-screen__intro" id="intro-video" playsinline muted>
+          <source src="/assets/video/Doppler_Intro.mp4" type="video/mp4">
+        </video>
+
+        <!-- Camera feed (visible after intro finishes) -->
         <video class="device-screen__camera" id="camera-feed" autoplay playsinline muted></video>
 
         <!-- Camera denied message -->

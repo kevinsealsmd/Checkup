@@ -340,11 +340,26 @@ body {
   z-index: 1;
 }
 
+/* Intro video — same position as camera, sits above it */
+.device-screen__intro {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  display: none;
+}
+
+.device-screen__intro.visible {
+  display: block;
+}
+
 /* Camera denied message */
 .device-screen__denied {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
   display: none;
   align-items: center;
   justify-content: center;

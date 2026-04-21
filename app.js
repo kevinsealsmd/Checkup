@@ -37,6 +37,7 @@
     deviceScanBtn: $('device-scan-btn'),
 
     // Screen content
+    introVideo: $('intro-video'),
     cameraFeed: $('camera-feed'),
     cameraDenied: $('camera-denied'),
     waveformCanvas: $('waveform-canvas'),
@@ -478,6 +479,10 @@
   function showMenu() {
     resetScan();
     stopCamera();
+    // Reset intro video for next time
+    els.introVideo.classList.remove('visible');
+    els.introVideo.pause();
+    els.introVideo.currentTime = 0;
     state.screen = 'menu';
     render();
   }
@@ -490,8 +495,19 @@
     state.bpm = null;
     state.cheerPhrase = '';
     render();
-    // Request camera immediately when entering Pulse Finder
+
+    // Play intro video first, then switch to camera
+    els.introVideo.currentTime = 0;
+    els.introVideo.classList.add('visible');
+    var playPromise = els.introVideo.play();
+    if (playPromise && playPromise.catch) playPromise.catch(function () {});
+
+    // Start requesting camera in parallel so it's ready when intro ends
     requestCamera();
+
+    els.introVideo.onended = function () {
+      els.introVideo.classList.remove('visible');
+    };
   }
 
   // ============================================
