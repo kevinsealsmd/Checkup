@@ -320,10 +320,10 @@ body {
    screen top=455 bot=950 left=143 right=574 */
 .device-frame__screen {
   position: absolute;
-  top: 34.5%;
-  left: 19.5%;
-  width: 61.0%;
-  height: 42.5%;
+  top: 34.0%;
+  left: 19.0%;
+  width: 62.0%;
+  height: 43.5%;
   z-index: 3;
   overflow: hidden;
   border-radius: 6px;
