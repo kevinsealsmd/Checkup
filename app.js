@@ -492,17 +492,17 @@
     state.cheerPhrase = '';
     render();
 
-    // Play intro video first, then switch to camera
+    // Play intro video with audio, then request camera after it finishes.
+    // Camera permission prompt would block the video if requested in parallel.
     els.introVideo.currentTime = 0;
+    els.introVideo.muted = false;
     els.introVideo.classList.add('visible');
     var playPromise = els.introVideo.play();
     if (playPromise && playPromise.catch) playPromise.catch(function () {});
 
-    // Start requesting camera in parallel so it's ready when intro ends
-    requestCamera();
-
     els.introVideo.onended = function () {
       els.introVideo.classList.remove('visible');
+      requestCamera();
     };
   }
 
