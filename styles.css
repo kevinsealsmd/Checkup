@@ -283,83 +283,15 @@ body {
 .scan {
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #FFE4CE 0%, #F4C0D1 30%, #B8E0DB 60%, #FFE4CE 100%);
-  background-size: 300% 300%;
-  animation: scan-bg-shift 8s ease-in-out infinite;
+  background:
+    radial-gradient(ellipse at 20% 20%, #F4C0D1 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, #A8DDD4 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, #FFD6A8 0%, transparent 60%),
+    linear-gradient(135deg, #FFDBC4 0%, #F2B4CA 35%, #9DD4C8 65%, #FFD6A8 100%);
+  background-size: 200% 200%;
+  animation: scan-bg-shift 6s ease-in-out infinite;
   position: relative;
   overflow: hidden;
-}
-
-/* Floating decorative shapes behind the device */
-.scan::before,
-.scan::after {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-.scan::before {
-  width: 200px;
-  height: 200px;
-  background: var(--soft-pink);
-  top: 8%;
-  left: -40px;
-  animation: float-blob 6s ease-in-out infinite;
-}
-
-.scan::after {
-  width: 160px;
-  height: 160px;
-  background: var(--scrub-teal);
-  bottom: 10%;
-  right: -30px;
-  animation: float-blob 7s ease-in-out infinite reverse;
-}
-
-/* Floating decorative blobs */
-.scan-deco {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: 0.12;
-}
-
-.scan-deco--1 {
-  width: 90px;
-  height: 90px;
-  background: var(--warm-yellow);
-  top: 15%;
-  right: 8%;
-  animation: float-blob 5s ease-in-out infinite 1s;
-}
-
-.scan-deco--2 {
-  width: 50px;
-  height: 50px;
-  background: var(--coral-pink);
-  bottom: 20%;
-  left: 6%;
-  animation: float-blob 4.5s ease-in-out infinite 0.5s;
-}
-
-.scan-deco--3 {
-  width: 70px;
-  height: 70px;
-  background: var(--light-teal);
-  top: 45%;
-  left: 3%;
-  animation: float-blob 6.5s ease-in-out infinite 2s;
-}
-
-.scan-deco--4 {
-  width: 40px;
-  height: 40px;
-  background: var(--warm-yellow);
-  bottom: 30%;
-  right: 5%;
-  animation: float-blob 5.5s ease-in-out infinite 3s;
 }
 
 .device-frame {
@@ -562,11 +494,6 @@ body {
 @keyframes scan-bg-shift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
-}
-
-@keyframes float-blob {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-20px) scale(1.08); }
 }
 
 @keyframes spin {
